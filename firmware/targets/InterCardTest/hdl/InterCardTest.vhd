@@ -26,9 +26,6 @@ use surf.SsiPkg.all;
 library axi_pcie_core;
 use axi_pcie_core.AxiPciePkg.all;
 
-library timetool;
-use timetool.AppPkg.all;
-
 entity InterCardTest is
    generic (
       TPD_G          : time    := 1 ns;
@@ -73,6 +70,8 @@ architecture top_level of InterCardTest is
 
    constant DMA_LANES_C : positive := 8;
 
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  -- 16 byte (128-bit) AXIS interface
+
    constant NUM_AXIL_MASTERS_C : positive := 3;
 
    constant AXIL_CONFIG_C : 
@@ -97,11 +96,6 @@ architecture top_level of InterCardTest is
    signal dmaObSlaves  : AxiStreamSlaveArray(DMA_LANES_C-1 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
    signal dmaIbMasters : AxiStreamMasterArray(DMA_LANES_C-1 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
    signal dmaIbSlaves  : AxiStreamSlaveArray(DMA_LANES_C-1 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
-
-   signal pipIbMaster : AxiWriteMasterType;
-   signal pipIbSlave  : AxiWriteSlaveType;
-   signal pipObMaster : AxiWriteMasterType;
-   signal pipObSlave  : AxiWriteSlaveType;
 
    signal usrReadMaster  : AxiReadMasterType;
    signal usrReadSlave   : AxiReadSlaveType;
@@ -130,8 +124,7 @@ begin
          -- MMCM attributes
          CLKIN_PERIOD_G    => 6.4,      -- 156.25 MHz
          CLKFBOUT_MULT_G   => 8,        -- 1.25GHz = 8 x 156.25 MHz
-         CLKOUT0_DIVIDE_G  => 8,        -- 156.25MHz = 1.25GHz/8
-         CLKOUT1_DIVIDE_G  => 50)       -- 25MHz = 1.25GHz/50
+         CLKOUT0_DIVIDE_G  => 8)        -- 156.25MHz = 1.25GHz/8
 
       port map(
          -- Clock Input

@@ -31,23 +31,6 @@ entity RateTestKcu1500 is
       PGP_TYPE_G     : boolean := false;  -- False: PGPv2b@3.125Gb/s, True: PGPv3@10.3125Gb/s
       BUILD_INFO_G   : BuildInfoType);
    port (
-      ---------------------
-      --  Application Ports
-      ---------------------
-      -- QSFP[0] Ports
-      qsfp0RefClkP : in  slv(1 downto 0);
-      qsfp0RefClkN : in  slv(1 downto 0);
-      qsfp0RxP     : in  slv(3 downto 0);
-      qsfp0RxN     : in  slv(3 downto 0);
-      qsfp0TxP     : out slv(3 downto 0);
-      qsfp0TxN     : out slv(3 downto 0);
-      -- QSFP[1] Ports
-      qsfp1RefClkP : in  slv(1 downto 0);
-      qsfp1RefClkN : in  slv(1 downto 0);
-      qsfp1RxP     : in  slv(3 downto 0);
-      qsfp1RxN     : in  slv(3 downto 0);
-      qsfp1TxP     : out slv(3 downto 0);
-      qsfp1TxN     : out slv(3 downto 0);
       --------------
       --  Core Ports
       --------------
@@ -85,16 +68,13 @@ architecture top_level of RateTestKcu1500 is
 
    constant DMA_LANES_C : positive := 8;
 
-   constant NUM_AXIL_MASTERS_C : positive := 8;
+   constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  -- 16 byte (128-bit) AXIS interface
 
-   constant HW_INDEX_C  : natural := 0;
-   constant APP_INDEX_C : natural := 1;
+   constant NUM_AXIL_MASTERS_C : positive := 2;
 
    constant AXIL_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXIL_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXIL_MASTERS_C, x"0080_0000", 23, 20);
 
    signal userClk156 : sl;
-   signal userClk25  : sl;
-   signal userRst25  : sl;
 
    signal axilClk          : sl;
    signal axilRst          : sl;
@@ -114,14 +94,6 @@ architecture top_level of RateTestKcu1500 is
    signal dmaIbMasters : AxiStreamMasterArray(DMA_LANES_C-1 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
    signal dmaIbSlaves  : AxiStreamSlaveArray(DMA_LANES_C-1 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
 
-   signal pgpIbMasters : AxiStreamMasterArray(3 downto 0)     := (others => AXI_STREAM_MASTER_INIT_C);
-   signal pgpIbSlaves  : AxiStreamSlaveArray(3 downto 0)      := (others => AXI_STREAM_SLAVE_FORCE_C);
-   signal pgpObMasters : AxiStreamQuadMasterArray(3 downto 0) := (others => (others => AXI_STREAM_MASTER_INIT_C));
-   signal pgpObSlaves  : AxiStreamQuadSlaveArray(3 downto 0)  := (others => (others => AXI_STREAM_SLAVE_FORCE_C));
-
-   signal trigMasters : AxiStreamMasterArray(3 downto 0) := (others => AXI_STREAM_MASTER_INIT_C);
-   signal trigSlaves  : AxiStreamSlaveArray(3 downto 0)  := (others => AXI_STREAM_SLAVE_FORCE_C);
-
 begin
 
    --------------------------------------- 
@@ -135,12 +107,11 @@ begin
          INPUT_BUFG_G      => true,
          FB_BUFG_G         => true,
          RST_IN_POLARITY_G => '1',
-         NUM_CLOCKS_G      => 2,
+         NUM_CLOCKS_G      => 1,
          -- MMCM attributes
          CLKIN_PERIOD_G    => 6.4,      -- 156.25 MHz
          CLKFBOUT_MULT_G   => 8,        -- 1.25GHz = 8 x 156.25 MHz
-         CLKOUT0_DIVIDE_G  => 8,        -- 156.25MHz = 1.25GHz/8
-         CLKOUT1_DIVIDE_G  => 50)       -- 25MHz = 1.25GHz/50
+         CLKOUT0_DIVIDE_G  => 8)        -- 156.25MHz = 1.25GHz/8
 
       port map(
          -- Clock Input
@@ -148,10 +119,8 @@ begin
          rstIn     => dmaRst,
          -- Clock Outputs
          clkOut(0) => axilClk,
-         clkOut(1) => userClk25,
          -- Reset Outputs
-         rstOut(0) => axilRst,
-         rstOut(1) => userRst25);
+         rstOut(0) => axilRst);
 
    ----------------------- 
    -- AXI-PCIE-CORE Module
@@ -236,89 +205,6 @@ begin
          mAxiReadMasters     => axilReadMasters,
          mAxiReadSlaves      => axilReadSlaves);
 
-   ---------------------
-   -- Application Module
-   ---------------------
-   U_App : entity work.Application
-      generic map (
-         TPD_G           => TPD_G,
-         AXI_BASE_ADDR_G => AXIL_CONFIG_C(APP_INDEX_C).baseAddr)
-      port map (
-         -- AXI-Lite Interface (axilClk domain)
-         axilClk         => axilClk,
-         axilRst         => axilRst,
-         axilReadMaster  => axilReadMasters(APP_INDEX_C),
-         axilReadSlave   => axilReadSlaves(APP_INDEX_C),
-         axilWriteMaster => axilWriteMasters(APP_INDEX_C),
-         axilWriteSlave  => axilWriteSlaves(APP_INDEX_C),
-         -- PGP Streams (axilClk domain)
-         pgpIbMasters    => pgpIbMasters,
-         pgpIbSlaves     => pgpIbSlaves,
-         pgpObMasters    => pgpObMasters,
-         pgpObSlaves     => pgpObSlaves,
-         -- Trigger Event streams (axilClk domain)
-         trigMasters     => trigMasters,
-         trigSlaves      => trigSlaves,
-         -- DMA Interface (dmaClk domain)
-         dmaClk          => dmaClk,
-         dmaRst          => dmaRst,
-         dmaObMasters    => dmaObMasters(DMA_SIZE_C-1 downto 0),
-         dmaObSlaves     => dmaObSlaves(DMA_SIZE_C-1 downto 0),
-         dmaIbMasters    => dmaIbMasters(DMA_SIZE_C-1 downto 0),
-         dmaIbSlaves     => dmaIbSlaves(DMA_SIZE_C-1 downto 0));
-
-   ------------------
-   -- Hardware Module
-   ------------------
-   U_Hardware : entity work.Hardware
-      generic map (
-         TPD_G             => TPD_G,
-         ROGUE_SIM_EN_G    => ROGUE_SIM_EN_G,
-         PGP_TYPE_G        => PGP_TYPE_G,
-         DMA_AXIS_CONFIG_G => DMA_AXIS_CONFIG_C,
-         AXIL_CLK_FREQ_G   => AXIL_CLK_FREQ_C,
-         AXI_BASE_ADDR_G   => AXIL_CONFIG_C(HW_INDEX_C).baseAddr)
-      port map (
-         ------------------------      
-         --  Top Level Interfaces
-         ------------------------    
-         -- Reference Clock and Reset
-         userClk25       => userClk25,
-         userRst25       => userRst25,
-         -- AXI-Lite Interface (axilClk domain)
-         axilClk         => axilClk,
-         axilRst         => axilRst,
-         axilReadMaster  => axilReadMasters(HW_INDEX_C),
-         axilReadSlave   => axilReadSlaves(HW_INDEX_C),
-         axilWriteMaster => axilWriteMasters(HW_INDEX_C),
-         axilWriteSlave  => axilWriteSlaves(HW_INDEX_C),
-         -- PGP Streams (axilClk domain)
-         pgpIbMasters    => pgpIbMasters,
-         pgpIbSlaves     => pgpIbSlaves,
-         pgpObMasters    => pgpObMasters,
-         pgpObSlaves     => pgpObSlaves,
-         -- Trigger Event streams (axilClk domain)
-         trigMasters     => trigMasters,
-         trigSlaves      => trigSlaves,
-         ------------------
-         --  Hardware Ports
-         ------------------       
-         -- QSFP[0] Ports
-         qsfp0RefClkP    => qsfp0RefClkP,
-         qsfp0RefClkN    => qsfp0RefClkN,
-         qsfp0RxP        => qsfp0RxP,
-         qsfp0RxN        => qsfp0RxN,
-         qsfp0TxP        => qsfp0TxP,
-         qsfp0TxN        => qsfp0TxN,
-         -- QSFP[1] Ports
-         qsfp1RefClkP    => qsfp1RefClkP,
-         qsfp1RefClkN    => qsfp1RefClkN,
-         qsfp1RxP        => qsfp1RxP,
-         qsfp1RxN        => qsfp1RxN,
-         qsfp1TxP        => qsfp1TxP,
-         qsfp1TxN        => qsfp1TxN);
-
-         
    U_GenTx: for i in 3 downto 0 generate
 
       U_PrbsTx: entity work.SsiPrbsTx 
@@ -331,14 +217,14 @@ begin
          port map (
             mAxisClk        => dmaClk,
             mAxisRst        => dmaRst,
-            mAxisMaster     => dmaIbMasters(i+4),
-            mAxisSlave      => dmaIbSlaves(i+4),
+            mAxisMaster     => dmaIbMasters(i),
+            mAxisSlave      => dmaIbSlaves(i),
             locClk          => axilClk,
             locRst          => axilRst,
-            axilReadMaster  => axilReadMasters(i+2),
-            axilReadSlave   => axilReadSlaves(i+2),
-            axilWriteMaster => axilWriteMasters(i+2),
-            axilWriteSlave  => axilWriteSlaves(i+2));
+            axilReadMaster  => axilReadMasters(i),
+            axilReadSlave   => axilReadSlaves(i),
+            axilWriteMaster => axilWriteMasters(i),
+            axilWriteSlave  => axilWriteSlaves(i));
             
    end generate;         
 
@@ -354,14 +240,14 @@ begin
          port map (
             sAxisClk        => dmaClk,
             sAxisRst        => dmaRst,
-            sAxisMaster     => dmaObMasters(i+4),
-            sAxisSlave      => dmaObSlaves(i+4),
+            sAxisMaster     => dmaObMasters(i),
+            sAxisSlave      => dmaObSlaves(i),
             axiClk          => axilClk,
             axiRst          => axilRst,
-            axiReadMaster   => axilReadMasters(i+6),
-            axiReadSlave    => axilReadSlaves(i+6),
-            axiWriteMaster  => axilWriteMasters(i+6),
-            axiWriteSlave   => axilWriteSlaves(i+6));
+            axiReadMaster   => axilReadMasters(i+1),
+            axiReadSlave    => axilReadSlaves(i+1),
+            axiWriteMaster  => axilWriteMasters(i+1),
+            axiWriteSlave   => axilWriteSlaves(i+1));
             
    end generate;         
 
