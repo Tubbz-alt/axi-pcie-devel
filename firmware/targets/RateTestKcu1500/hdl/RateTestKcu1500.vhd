@@ -70,7 +70,7 @@ architecture top_level of RateTestKcu1500 is
 
    constant DMA_AXIS_CONFIG_C : AxiStreamConfigType := ssiAxiStreamConfig(16, TKEEP_COMP_C, TUSER_FIRST_LAST_C, 8, 2);  -- 16 byte (128-bit) AXIS interface
 
-   constant NUM_AXIL_MASTERS_C : positive := 2;
+   constant NUM_AXIL_MASTERS_C : positive := 8;
 
    constant AXIL_CONFIG_C : AxiLiteCrossbarMasterConfigArray(NUM_AXIL_MASTERS_C-1 downto 0) := genAxiLiteConfig(NUM_AXIL_MASTERS_C, x"0080_0000", 23, 20);
 
@@ -228,7 +228,7 @@ begin
             
    end generate;         
 
-   U_GenRx: for i in 1 downto 0 generate
+   U_GenRx: for i in 3 downto 0 generate
 
       U_PrbsRx: entity work.SsiPrbsRx 
          generic map (
@@ -244,10 +244,10 @@ begin
             sAxisSlave      => dmaObSlaves(i),
             axiClk          => axilClk,
             axiRst          => axilRst,
-            axiReadMaster   => axilReadMasters(i+1),
-            axiReadSlave    => axilReadSlaves(i+1),
-            axiWriteMaster  => axilWriteMasters(i+1),
-            axiWriteSlave   => axilWriteSlaves(i+1));
+            axiReadMaster   => axilReadMasters(i+4),
+            axiReadSlave    => axilReadSlaves(i+4),
+            axiWriteMaster  => axilWriteMasters(i+4),
+            axiWriteSlave   => axilWriteSlaves(i+4));
             
    end generate;         
 
