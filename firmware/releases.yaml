@@ -1,0 +1,27 @@
+
+TopRoguePackage: AxiPcieDevel
+
+RoguePackages:
+   - python
+   - submodules/axi-pcie-core/python
+   - submodules/surf/python
+
+RogueConfig:
+
+Targets:
+   InterCardTest:
+      Extensions:
+      - mcs
+      - bit
+   RateTest:
+      Extensions:
+      - mcs
+      - bit
+
+Releases:
+   InterCardTest:
+      Targets:
+      - InterCardTest
+      Types:
+      - Rogue
+
