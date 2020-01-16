@@ -16,13 +16,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-use work.StdRtlPkg.all;
-use work.AxiLitePkg.all;
-use work.AxiStreamPkg.all;
-use work.SsiPkg.all;
-use work.AxiPciePkg.all;
-use work.TimingPkg.all;
-use work.AppPkg.all;
+library surf;
+use surf.StdRtlPkg.all;
+use surf.AxiLitePkg.all;
+use surf.AxiPkg.all;
+use surf.AxiStreamPkg.all;
+use surf.SsiPkg.all;
+
+library axi_pcie_core;
+use axi_pcie_core.AxiPciePkg.all;
 
 entity RateTestKcu1500 is
    generic (
@@ -99,7 +101,7 @@ begin
    --------------------------------------- 
    -- AXI-Lite and reference 25 MHz clocks
    --------------------------------------- 
-   U_axilClk : entity work.ClockManagerUltraScale
+   U_axilClk : entity surf.ClockManagerUltraScale
       generic map(
          TPD_G             => TPD_G,
          SIMULATION_G      => ROGUE_SIM_EN_G,
@@ -125,7 +127,7 @@ begin
    ----------------------- 
    -- AXI-PCIE-CORE Module
    -----------------------          
-   U_Core : entity work.XilinxKcu1500Core
+   U_Core : entity axi_pcie_core.XilinxKcu1500Core
       generic map (
          TPD_G                => TPD_G,
          ROGUE_SIM_EN_G       => ROGUE_SIM_EN_G,
@@ -187,7 +189,7 @@ begin
    --------------------
    -- AXI-Lite Crossbar
    --------------------         
-   U_XBAR : entity work.AxiLiteCrossbar
+   U_XBAR : entity surf.AxiLiteCrossbar
       generic map (
          TPD_G              => TPD_G,
          NUM_SLAVE_SLOTS_G  => 1,
@@ -207,7 +209,7 @@ begin
 
    U_GenTx: for i in 3 downto 0 generate
 
-      U_PrbsTx: entity work.SsiPrbsTx 
+      U_PrbsTx: entity surf.SsiPrbsTx 
          generic map (
             TPD_G                      => TPD_G,
             PRBS_SEED_SIZE_G           => 256,
@@ -230,7 +232,7 @@ begin
 
    U_GenRx: for i in 3 downto 0 generate
 
-      U_PrbsRx: entity work.SsiPrbsRx 
+      U_PrbsRx: entity surf.SsiPrbsRx 
          generic map (
             TPD_G                     => TPD_G,
             PRBS_SEED_SIZE_G          => 256,
