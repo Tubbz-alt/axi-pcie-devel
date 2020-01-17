@@ -12,16 +12,19 @@ Targets:
    InterCardTest:
       Extensions:
       - mcs
-      - bit
    RateTest:
       Extensions:
       - mcs
-      - bit
 
 Releases:
    InterCardTest:
       Targets:
       - InterCardTest
+      Types:
+      - Rogue
+   RateTest:
+      Targets:
+      - RateTest
       Types:
       - Rogue
 
