@@ -8,5 +8,5 @@ class InterCardRoot(pr.Root):
         pr.Root.__init__(self,name='InterCardRoot',description='Tester', pollEn=True)
 
         for i in range(1):
-            self.add(AxiPcieDevel.InterCardTest.PcieControl(index=i))
+            self.add(AxiPcieDevelApp.InterCardTest.PcieControl(index=i))
 
