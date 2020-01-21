@@ -2,7 +2,7 @@
 import pyrogue as pr
 import rogue.hardware.axi
 import pyrogue.utilities.prbs
-import RateTest
+import AxiPcieDevel.RateTest
 
 class PcieControl(pr.Device):
 
@@ -11,7 +11,7 @@ class PcieControl(pr.Device):
 
         self._dataMap = rogue.hardware.axi.AxiMemMap(f'/dev/datadev_{index}')
 
-        self.add(RateTest.Fpga(memBase=self._dataMap))
+        self.add(AxiPcieDevel.RateTest.Fpga(memBase=self._dataMap))
 
         self._data   = [None] * 4
         self._prbsRx = [None] * 4
