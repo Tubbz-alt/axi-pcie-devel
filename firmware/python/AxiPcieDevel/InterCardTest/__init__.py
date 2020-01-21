@@ -1,4 +1,4 @@
 
 
-from InterCardTest._Fpga import *
+from AxiPcieDevel.InterCardTest._Fpga import *
 

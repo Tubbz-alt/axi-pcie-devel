@@ -1,4 +1,4 @@
 
 
-from RateTest._Fpga import *
+from AxiPcieDevel.RateTest._Fpga import *
 
