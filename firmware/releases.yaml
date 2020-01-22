@@ -12,9 +12,11 @@ RogueConfig:
 
 Targets:
    InterCardTest:
+      ImageDir: targets/InterCardTest/images
       Extensions:
       - mcs
    RateTest:
+      ImageDir: targets/InterCardTest/images
       Extensions:
       - mcs
 
