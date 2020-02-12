@@ -5,8 +5,14 @@ TopRoguePackage: AxiPcieDevel
 
 RoguePackages:
    - python
-   - submodules/axi-pcie-core/python
-   - submodules/surf/python
+
+RogueScripts:
+   - ../software/scripts/inter_card.py
+   - ../software/scripts/rate_test.py
+
+CondaDependencies:
+   - surf
+   - axi_pcie_core
 
 RogueConfig:
 
@@ -16,17 +22,17 @@ Targets:
       Extensions:
       - mcs
    RateTest:
-      ImageDir: targets/InterCardTest/images
+      ImageDir: targets/RateTest/images
       Extensions:
       - mcs
 
 Releases:
-   InterCardTest:
+   PcieInterCardTest:
       Targets:
       - InterCardTest
       Types:
       - Rogue
-   RateTest:
+   PcieRateTest:
       Targets:
       - RateTest
       Types:
