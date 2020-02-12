@@ -1,10 +1,8 @@
 
 
 from AxiPcieDevel.RateTest._Fpga import *
-
-
-from AxiPcieDevelApp.RateTest._PcieControl import *
-from AxiPcieDevelApp.RateTest._PrbsMultiRx import *
-from AxiPcieDevelApp.RateTest._PrbsMultiTx import *
-from AxiPcieDevelApp.RateTest._Root        import *
+from AxiPcieDevel.RateTest._PcieControl import *
+from AxiPcieDevel.RateTest._PrbsMultiRx import *
+from AxiPcieDevel.RateTest._PrbsMultiTx import *
+from AxiPcieDevel.RateTest._Root        import *
 
