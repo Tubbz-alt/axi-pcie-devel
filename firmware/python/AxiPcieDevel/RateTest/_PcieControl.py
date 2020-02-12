@@ -9,7 +9,7 @@ class PcieControl(pr.Device):
     def __init__(self,index=0):
         pr.Device.__init__(self,name=f'PcieControl[{index}]')
 
-        self._dataMap = rogue.hardware.axi.AxiMemMap(f'/dev/datadev_{index}')
+        self._dataMap = rogue.hardware.axi.AxiMemMap(f'/dev/datagpu_{index}')
 
         self.add(AxiPcieDevel.RateTest.Fpga(memBase=self._dataMap))
 
@@ -18,7 +18,7 @@ class PcieControl(pr.Device):
         self._prbsTx = [None] * 2
 
         for i in range(4):
-            self._data[i]   = rogue.hardware.axi.AxiStreamDma(f'/dev/datadev_{index}',(i+4)*256,True)
+            self._data[i]   = rogue.hardware.axi.AxiStreamDma(f'/dev/datagpu_{index}',(i+4)*256,True)
             self._prbsRx[i] = pyrogue.utilities.prbs.PrbsRx(name=f'PrbsRx[{i}]', width=256)
             self.add(self._prbsRx[i])
 

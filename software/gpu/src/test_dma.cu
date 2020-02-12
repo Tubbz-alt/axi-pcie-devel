@@ -48,7 +48,7 @@ int main(int argc, char *argv[]) {
    fprintf(stderr, "Total devices: %d\n", total);
 
    CUdevice device;
-   checkError(cuDeviceGet(&device, 1));
+   checkError(cuDeviceGet(&device, 0));
 
    char name[256];
    checkError(cuDeviceGetName(name, 256, device));
@@ -132,18 +132,26 @@ int main(int argc, char *argv[]) {
 
    cudaStreamCreate(&stream);
 
-   fprintf(stderr, "Trigger write\n");
-   cuStreamWriteValue32(stream,hwWriteStart,0x00,0);
-   cuStreamWaitValue32(stream, hwWritePtr+4, 1, CU_STREAM_WAIT_VALUE_GEQ);
+   while (1) {
 
-   // Do GPU processing here
-   data_move<<<4,1024,1,stream>>>((uint32_t*)hwWritePtr,(uint32_t*)hwReadPtr);
-   //data_move<<<1,1,1,stream>>>((uint32_t*)hwWritePtr,(uint32_t*)hwReadPtr);
+      //fprintf(stderr, "Trigger write\n");
+      cuStreamWriteValue32(stream,hwWritePtr+4,0x00,0);
+      cuStreamWriteValue32(stream,hwWriteStart,0x00,0);
+      cuStreamWaitValue32(stream, hwWritePtr+4, 1, CU_STREAM_WAIT_VALUE_GEQ);
 
-   //cuStreamWriteValue32(stream,hwReadStart,((uint32_t*)(hwWritePtr))[1],0);
-   cuStreamWriteValue32(stream,hwReadStart,0x2020,0);
+      // Do GPU processing here
+      data_move<<<4,1024,1,stream>>>((uint32_t*)hwWritePtr,(uint32_t*)hwReadPtr);
+      //data_move<<<1,1,1,stream>>>((uint32_t*)hwWritePtr,(uint32_t*)hwReadPtr);
 
-   fprintf(stderr, "Stream Sync\n");
+      //cuStreamWriteValue32(stream,hwReadStart,((uint32_t*)(hwWritePtr))[1],0);
+      cuStreamWriteValue32(stream,hwReadStart,0x2020,0);
+
+      //fprintf(stderr, "Stream Sync\n");
+      //cudaStreamSynchronize(stream);
+      //printf("End of loop\n");
+   }
+
+   //fprintf(stderr, "Stream Sync\n");
    cudaStreamSynchronize(stream);
 
    cuCtxSynchronize();
