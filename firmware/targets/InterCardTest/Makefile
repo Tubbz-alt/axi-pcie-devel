@@ -22,7 +22,7 @@ export PCIE_GEN_NUM = GEN3
 export BYPASS_RECONFIG = 1
 
 # Define release
-export RELEASE = InterCardTest
+#export RELEASE = InterCardTest
 
 # Define target output
 target: prom
