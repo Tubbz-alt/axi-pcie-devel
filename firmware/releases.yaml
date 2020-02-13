@@ -7,8 +7,8 @@ RoguePackages:
    - python
 
 RogueScripts:
-   - ../software/scripts/inter_card.py
-   - ../software/scripts/rate_test.py
+   - ../software/scripts/interCardGui
+   - ../software/scripts/rateTestGui
 
 CondaDependencies:
    - surf
@@ -27,13 +27,9 @@ Targets:
       - mcs
 
 Releases:
-   PcieInterCardTest:
+   axi_pcie_devel:
       Targets:
       - InterCardTest
-      Types:
-      - Rogue
-   PcieRateTest:
-      Targets:
       - RateTest
       Types:
       - Rogue
