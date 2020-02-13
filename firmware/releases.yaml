@@ -28,6 +28,7 @@ Targets:
 
 Releases:
    axi_pcie_devel:
+      Primary: True
       Targets:
       - InterCardTest
       - RateTestKcu1500
