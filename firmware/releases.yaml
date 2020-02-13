@@ -21,8 +21,8 @@ Targets:
       ImageDir: targets/InterCardTest/images
       Extensions:
       - mcs
-   RateTest:
-      ImageDir: targets/RateTest/images
+   RateTestKcu1500:
+      ImageDir: targets/RateTestKcu1500/images
       Extensions:
       - mcs
 
@@ -30,7 +30,7 @@ Releases:
    axi_pcie_devel:
       Targets:
       - InterCardTest
-      - RateTest
+      - RateTestKcu1500
       Types:
       - Rogue
 
