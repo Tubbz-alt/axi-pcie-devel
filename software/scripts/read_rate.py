@@ -36,63 +36,79 @@ def loopRawWriteTest(root,count):
 
 with InterCardRoot(pollEn=False) as root:
 
-    ##########################################################
-    time.sleep(5)
+    if True:
+        print("\n================ C++ API Transactions =================")
+        root.PcieControl[0].Fpga.AxiPcieCore.AxiVersion.ScratchPad._rateTest()
 
-    stime = time.time()
-    count = 500000
-
-    with root.updateGroup():
-        cProfile.run('loopReadTest(root,count)')
-
-    etime = time.time()
-    dtime = etime - stime
-    rate = count / dtime
-
-    print(f"Completed {count} reads in {dtime} seconds. Rate = {rate}")
+    if True:
+        print("\n================ Raw startTransaction Transactions =================")
+        root.PcieControl[0].Fpga.AxiPcieCore.AxiVersion.ScratchPad._block._rateTest()
 
     ##########################################################
-    time.sleep(5)
+    if True:
+        print("\n================ Python get()  =================")
+        time.sleep(5)
 
-    stime = time.time()
-    count = 500000
+        stime = time.time()
+        count = 1000000
 
-    with root.updateGroup():
-        cProfile.run('loopWriteTest(root,count)')
+        with root.updateGroup():
+            cProfile.run('loopReadTest(root,count)')
 
-    etime = time.time()
-    dtime = etime - stime
-    rate = count / dtime
+        etime = time.time()
+        dtime = etime - stime
+        rate = count / dtime
 
-    print(f"Completed {count} writes in {dtime} seconds. Rate = {rate}")
-
-    ##########################################################
-    time.sleep(5)
-
-    stime = time.time()
-    count = 500000
-
-    with root.updateGroup():
-        cProfile.run('loopRawReadTest(root,count)')
-
-    etime = time.time()
-    dtime = etime - stime
-    rate = count / dtime
-
-    print(f"Completed {count} raw reads in {dtime} seconds. Rate = {rate}")
+        print(f"Completed {count} reads in {dtime} seconds. Rate = {rate}")
 
     ##########################################################
-    time.sleep(5)
+    if True:
+        print("\n================ Python set()  =================")
+        time.sleep(5)
 
-    stime = time.time()
-    count = 500000
+        stime = time.time()
+        count = 1000000
 
-    with root.updateGroup():
-        cProfile.run('loopRawWriteTest(root,count)')
+        with root.updateGroup():
+            cProfile.run('loopWriteTest(root,count)')
 
-    etime = time.time()
-    dtime = etime - stime
-    rate = count / dtime
+        etime = time.time()
+        dtime = etime - stime
+        rate = count / dtime
 
-    print(f"Completed {count} raw writes in {dtime} seconds. Rate = {rate}")
+        print(f"Completed {count} writes in {dtime} seconds. Rate = {rate}")
+
+    ##########################################################
+    if True:
+        print("\n================ Python Raw get()  =================")
+        time.sleep(5)
+
+        stime = time.time()
+        count = 1000000
+
+        with root.updateGroup():
+            cProfile.run('loopRawReadTest(root,count)')
+
+        etime = time.time()
+        dtime = etime - stime
+        rate = count / dtime
+
+        print(f"Completed {count} raw reads in {dtime} seconds. Rate = {rate}")
+
+    ##########################################################
+    if True:
+        print("\n================ Python Raw set()  =================")
+        time.sleep(5)
+
+        stime = time.time()
+        count = 1000000
+
+        with root.updateGroup():
+            cProfile.run('loopRawWriteTest(root,count)')
+
+        etime = time.time()
+        dtime = etime - stime
+        rate = count / dtime
+
+        print(f"Completed {count} raw writes in {dtime} seconds. Rate = {rate}")
 
