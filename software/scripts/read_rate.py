@@ -26,14 +26,6 @@ def loopWriteTest(root,count):
     for i in range(count):
         root.PcieControl[0].Fpga.AxiPcieCore.AxiVersion.ScratchPad.set(i)
 
-def loopRawReadTest(root,count):
-    for i in range(count):
-        root.PcieControl[0].Fpga.AxiPcieCore.AxiVersion._rawRead(0x4)
-
-def loopRawWriteTest(root,count):
-    for i in range(count):
-        root.PcieControl[0].Fpga.AxiPcieCore.AxiVersion._rawWrite(0x4,i)
-
 with InterCardRoot(pollEn=False) as root:
 
     if True:
